@@ -1,156 +1,837 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(const PortfolioApp());
+import 'widgets/contact_section.dart';
+import 'widgets/portfolio_entry.dart';
+import 'widgets/portfolio_logo.dart';
+import 'widgets/scroll_reveal.dart';
 
-const bg = Color(0xFF080B14);
-const panel = Color(0xFF111827);
-const accent = Color(0xFF8B5CF6);
-const cyan = Color(0xFF22D3EE);
+const bg = Color(0xFF050505);
+const sectionBg = Color(0xFF0B0B0B);
+const panel = Color(0xFF121212);
+const border = Color(0xFF262626);
+const accent = Color(0xFFC6A96B);
+const white = Color(0xFFF5F5F5);
+const muted = Color(0xFF929292);
+
+void main() => runApp(const PortfolioApp());
 
 class PortfolioApp extends StatelessWidget {
   const PortfolioApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final base = ThemeData.dark();
+
     return MaterialApp(
       title: 'Manish Sahu | Flutter Developer',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData(
+        brightness: Brightness.dark,
         scaffoldBackgroundColor: bg,
-        colorScheme: ColorScheme.fromSeed(seedColor: accent, brightness: Brightness.dark),
-        textTheme: ThemeData.dark().textTheme.apply(bodyColor: const Color(0xFFE5E7EB), displayColor: Colors.white),
+        fontFamily: 'Figtree',
+        colorScheme: const ColorScheme.dark(
+          primary: accent,
+          secondary: accent,
+          surface: panel,
+        ),
+        dividerColor: border,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: panel,
+          hintStyle: const TextStyle(color: muted),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(13),
+            borderSide: const BorderSide(color: accent),
+          ),
+        ),
       ),
-      home: const PortfolioHome(),
+      home: const PortfolioEntry(
+        child: PortfolioHome(),
+      ),
     );
   }
 }
 
-class PortfolioHome extends StatelessWidget {
+class PortfolioHome extends StatefulWidget {
   const PortfolioHome({super.key});
 
-  static const skills = ['Flutter', 'Dart', 'BLoC', 'Provider', 'Firebase', 'REST APIs', 'Google Maps', 'Offline-first apps', 'Git', 'CI/CD'];
+  @override
+  State<PortfolioHome> createState() => _PortfolioHomeState();
+}
+
+class _PortfolioHomeState extends State<PortfolioHome> {
+  final Map<String, GlobalKey> keys = {
+    for (final item in [
+      'About',
+      'Skills',
+      'Experience',
+      'Projects',
+      'Contact',
+    ])
+      item: GlobalKey(),
+  };
+
+  static const skills = [
+    'Flutter',
+    'Dart',
+    'BLoC',
+    'Provider',
+    'Firebase',
+    'REST APIs',
+    'Google Maps',
+    'Offline-first apps',
+    'Git',
+    'CI/CD',
+    'Responsive UI',
+    'JSON',
+  ];
+
+  void go(String name) {
+    final context = keys[name]?.currentContext;
+
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 650),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
+  Future<void> open(String url) async {
+    final uri = Uri.parse(url);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final wide = width >= 850;
+    final wide = MediaQuery.sizeOf(context).width >= 900;
+
     return Scaffold(
       body: SelectionArea(
         child: SingleChildScrollView(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            _nav(context, wide),
-            _hero(context, wide),
-            _section('ABOUT ME', 'Building useful products with thoughtful engineering',
-              'I am a Flutter-focused software developer with experience building cross-platform mobile applications. I enjoy turning complex business workflows into reliable, responsive and user-friendly experiences. My work includes state management, API integrations, offline capabilities, reporting and hardware-connected workflows.'),
-            _skills(),
-            _experience(),
-            _projects(wide),
-            _contact(),
-            const Padding(padding: EdgeInsets.all(28), child: Text('© 2026 Manish Sahu • Built with Flutter', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38))),
-          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _nav(wide),
+              _hero(wide),
+              _wrap(
+                'About',
+                ScrollReveal(
+                  child: _section(
+                    'ABOUT ME',
+                    'Building useful products with thoughtful engineering.',
+                    'I am a Flutter-focused software developer experienced in building cross-platform applications. I enjoy turning complex business workflows into reliable, responsive and user-friendly experiences. My work includes state management, API integrations, offline capabilities, reporting and hardware-connected workflows.',
+                  ),
+                ),
+              ),
+              _wrap(
+                'Skills',
+                ScrollReveal(child: _skills()),
+                color: sectionBg,
+              ),
+              _wrap(
+                'Experience',
+                ScrollReveal(child: _experience()),
+              ),
+              _wrap(
+                'Projects',
+                ScrollReveal(child: _projects(wide)),
+                color: sectionBg,
+              ),
+              _wrap(
+                'Contact',
+                ScrollReveal(child: _contact()),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(30),
+                child: Text(
+                  '© 2026 Manish Sahu · Built with Flutter',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _nav(BuildContext context, bool wide) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal:  widePadding, vertical: 22),
-    child: Row(children: [
-      const Text('MS.', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: cyan)),
-      const Spacer(),
-      if (wide) ...[
-        _navLink(context, 'About', 'about'), _navLink(context, 'Skills', 'skills'), _navLink(context, 'Experience', 'experience'), _navLink(context, 'Projects', 'projects'), _navLink(context, 'Contact', 'contact'),
-      ] else const Text('FLUTTER DEVELOPER', style: TextStyle(letterSpacing: 1.4, color: Colors.white60, fontSize: 11)),
-    ]),
-  );
+  Widget _nav(bool wide) {
+    return Container(
+      color: bg,
+      padding: EdgeInsets.symmetric(
+        horizontal: wide ? 60 : 20,
+        vertical: 18,
+      ),
+      child: Row(
+        children: [
+          const PortfolioLogo(),
+          const Spacer(),
+          if (wide)
+            Wrap(
+              spacing: 4,
+              children: keys.keys.map((name) {
+                return TextButton(
+                  onPressed: () => go(name),
+                  child: Text(
+                    name,
+                    style: const TextStyle(color: white),
+                  ),
+                );
+              }).toList(),
+            )
+          else
+            PopupMenuButton<String>(
+              color: panel,
+              icon: const Icon(Icons.menu, color: white),
+              onSelected: go,
+              itemBuilder: (_) => keys.keys.map((name) {
+                return PopupMenuItem(
+                  value: name,
+                  child: Text(name),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
 
-  Widget _navLink(BuildContext context, String label, String id) => TextButton(
-    onPressed: () => Scrollable.ensureVisible(_keys[id]!.currentContext!, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut),
-    child: Text(label, style: const TextStyle(color: Colors.white70)),
-  );
+  Widget _hero(bool wide) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: wide ? 70 : 24,
+        vertical: wide ? 110 : 72,
+      ),
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment(0.9, -0.8),
+          radius: 1.15,
+          colors: [
+            Color(0xFF211D16),
+            bg,
+            bg,
+          ],
+        ),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.circle, size: 8, color: accent),
+                  SizedBox(width: 10),
+                  Text(
+                    'AVAILABLE FOR SELECT OPPORTUNITIES',
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 10,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              Text(
+                'Hi, I’m Manish.\nI build apps that scale.',
+                style: TextStyle(
+                  fontSize: wide ? 68 : 43,
+                  height: 1.05,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -2,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'FLUTTER DEVELOPER  ·  DART  ·  BLoC  ·  FIREBASE',
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.4,
+                ),
+              ),
+              const SizedBox(height: 18),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 650),
+                child: Text(
+                  'I create polished cross-platform applications, from responsive interfaces to offline-first workflows and real-world integrations.',
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 17,
+                    height: 1.8,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () => go('Projects'),
+                    icon: const Icon(Icons.arrow_downward),
+                    label: const Text('Explore projects'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: accent,
+                      foregroundColor: bg,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 19,
+                      ),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => go('Contact'),
+                    icon: const Icon(Icons.arrow_outward),
+                    label: const Text('Contact me'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: white,
+                      side: const BorderSide(color: border),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 19,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 64),
+              const Wrap(
+                spacing: 48,
+                runSpacing: 22,
+                children: [
+                  _Metric('3.5+', 'YEARS FLUTTER*'),
+                  _Metric('1.3+', 'YEARS MENDIX*'),
+                  _Metric('04', 'FEATURED PROJECTS'),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                '*Experience figures supplied for this portfolio draft; verify before publishing.',
+                style: TextStyle(
+                  color: Color(0xFF666666),
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-  static const double widePadding = 42;
-  static final Map<String, GlobalKey> _keys = {for (final id in ['about','skills','experience','projects','contact']) id: GlobalKey()};
+  Widget _wrap(
+    String name,
+    Widget child, {
+    Color color = bg,
+  }) {
+    return Container(
+      key: keys[name],
+      color: color,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1120),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 26,
+              vertical: 76,
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
 
-  Widget _hero(BuildContext context, bool wide) => Container(
-    padding: EdgeInsets.symmetric(horizontal: wide ? 72 : 26, vertical: wide ? 100 : 68),
-    decoration: const BoxDecoration(gradient: RadialGradient(center: Alignment.topRight, radius: 1.25, colors: [Color(0xFF25204A), bg, bg])),
-    child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1100), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.circle, size: 9, color: Color(0xFF34D399)), SizedBox(width: 9), Text('OPEN TO SENIOR FLUTTER OPPORTUNITIES', style: TextStyle(color: Color(0xFF9CA3AF), letterSpacing: 1.6, fontSize: 11, fontWeight: FontWeight.w700))]),
-      const SizedBox(height: 28),
-      Text('Hi, I’m Manish.\nI build apps that scale.', style: TextStyle(fontSize: wide ? 62 : 42, height: 1.08, fontWeight: FontWeight.w900, letterSpacing: -2)),
-      const SizedBox(height: 22),
-      const Text('Flutter Developer • Dart • BLoC • Firebase', style: TextStyle(color: cyan, fontSize: 17, fontWeight: FontWeight.w600)),
-      const SizedBox(height: 18),
-       ConstrainedBox(constraints: const BoxConstraints(maxWidth: 650), child: const Text('I create polished cross-platform applications, from responsive interfaces to offline-first workflows and real-world integrations.', style: TextStyle(color: Colors.white60, fontSize: 16, height: 1.7))),
-      const SizedBox(height: 32),
-      Wrap(spacing: 14, runSpacing: 12, children: [
-        FilledButton.icon(onPressed: () => _scroll('projects'), icon: const Icon(Icons.arrow_downward), label: const Text('Explore projects')),
-        OutlinedButton.icon(onPressed: () => _scroll('contact'), icon: const Icon(Icons.mail_outline), label: const Text('Contact me')),
-      ]),
-      const SizedBox(height: 60),
-      Wrap(spacing: 36, runSpacing: 20, children: const [
-        _Metric(value: '3.5+', label: 'Years Flutter*'), _Metric(value: '1.3+', label: 'Years Mendix*'), _Metric(value: '4', label: 'Featured projects'),
-      ]),
-      const SizedBox(height: 12),
-      const Text('*Experience figures supplied for this portfolio draft; verify before publishing.', style: TextStyle(color: Colors.white30, fontSize: 10)),
-    ]))),
-  );
+  Widget _section(
+    String eyebrow,
+    String title,
+    String body,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _eyebrow(eyebrow),
+        const SizedBox(height: 16),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: Text(
+            body,
+            style: const TextStyle(
+              color: muted,
+              height: 1.9,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-  Widget _section(String eyebrow, String title, String body) => Container(
-    key: _keys['about'], padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 76),
-    child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1000), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _eyebrow(eyebrow), const SizedBox(height: 14), Text(title, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)), const SizedBox(height: 18), Text(body, style: const TextStyle(color: Colors.white60, height: 1.8, fontSize: 16)),
-    ]))),
-  );
+  Widget _skills() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _eyebrow('TECHNICAL TOOLKIT'),
+        const SizedBox(height: 16),
+        const Text(
+          'Tools I work with',
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 28),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: skills.map((skill) {
+            return Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 14,
+              ),
+              decoration: BoxDecoration(
+                color: panel,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: border),
+              ),
+              child: Text(
+                skill,
+                style: const TextStyle(
+                  color: white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
 
-  Widget _skills() => Container(key: _keys['skills'], color: const Color(0xFF0D1220), padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 72), child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1000), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _eyebrow('TECHNICAL TOOLKIT'), const SizedBox(height: 14), const Text('Tools I work with', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)), const SizedBox(height: 28),
-    Wrap(spacing: 12, runSpacing: 12, children: skills.map((s) => Container(padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13), decoration: BoxDecoration(color: panel, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white10)), child: Text(s, style: const TextStyle(fontWeight: FontWeight.w600)))).toList()),
-  ]))));
+  Widget _experience() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _eyebrow('CAREER'),
+        const SizedBox(height: 16),
+        const Text(
+          'Experience',
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 28),
+        _infoCard(
+          'Senior Consultant',
+          'Emergys',
+          'Client: SmartQ · Project: Pulse',
+          'Enterprise application development for cafeteria and food-service operations, including Flutter UI, application workflows, integrations, offline support and operational reporting.',
+        ),
+        const SizedBox(height: 16),
+        _infoCard(
+          'Application Developer',
+          'Mendix',
+          'Low-code application development',
+          'Contributed to business application development and enterprise workflows before focusing on Flutter. Update this entry with your exact company, dates and responsibilities.',
+        ),
+      ],
+    );
+  }
 
-  Widget _experience() => Container(key: _keys['experience'], padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 76), child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1000), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _eyebrow('CAREER'), const SizedBox(height: 14), const Text('Experience', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)), const SizedBox(height: 28),
-    _infoCard('Senior Consultant', 'Emergys', 'Client: SmartQ • Project: Pulse', 'Worked on enterprise application development for cafeteria and food-service operations. Focus areas include Flutter UI, application workflows, integrations, offline support and operational reporting.'),
-    const SizedBox(height: 14),
-    _infoCard('Earlier development experience', 'Mendix', 'Low-code application development', 'Contributed to business application development and gained experience with enterprise workflows before focusing on Flutter.'),
-  ]))));
+  Widget _infoCard(
+    String role,
+    String company,
+    String subtitle,
+    String detail,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: panel,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            company.toUpperCase(),
+            style: const TextStyle(
+              color: accent,
+              fontSize: 11,
+              letterSpacing: 2,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            role,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: const TextStyle(color: muted),
+          ),
+          const SizedBox(height: 15),
+          Text(
+            detail,
+            style: const TextStyle(
+              color: muted,
+              height: 1.8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _projects(bool wide) => Container(key: _keys['projects'], color: const Color(0xFF0D1220), padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 76), child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1000), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _eyebrow('SELECTED WORK'), const SizedBox(height: 14), const Text('Projects & product work', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)), const SizedBox(height: 12), const Text('A selection of enterprise projects and areas of contribution.', style: TextStyle(color: Colors.white60)), const SizedBox(height: 28),
-    GridView.count(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), crossAxisCount: wide ? 2 : 1, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: wide ? 1.45 : 1.7, children: [
-      _project('01', 'Pulse • SmartQ', 'Enterprise cafeteria operations platform covering audits, compliance, vendor workflows, reporting, P&L insights and feedback.', ['Flutter', 'Dart', 'BLoC', 'Firebase']),
-      _project('02', 'Lens', 'Enterprise application migration from Mendix to Flutter, with a focus on modern mobile experiences.', ['Flutter', 'REST APIs', 'BLoC']),
-      _project('03', 'Insights', 'Business insights and operational reporting experience as part of an enterprise application modernization effort.', ['Flutter', 'Charts', 'API integration']),
-      _project('04', 'SQLens', 'Enterprise data and analytics application work. Add verified feature details and screenshots before publishing.', ['Flutter', 'Dart', 'Integration']),
-    ]),
-    const SizedBox(height: 12), const Text('Project descriptions are intentionally high-level. Publish only details and screenshots you are authorized to share.', style: TextStyle(color: Colors.white30, fontSize: 11)),
-  ]))));
+  Widget _projects(bool wide) {
+    final data = [
+      (
+        '01',
+        'Pulse · SmartQ',
+        'Enterprise cafeteria operations platform covering audits, compliance, vendor workflows, reporting, P&L insights and feedback.',
+        ['Flutter', 'Dart', 'BLoC', 'Firebase']
+      ),
+      (
+        '02',
+        'Lens',
+        'Enterprise application migration from Mendix to Flutter, focused on modern mobile experiences.',
+        ['Flutter', 'REST APIs', 'BLoC']
+      ),
+      (
+        '03',
+        'Insights',
+        'Business insights and operational reporting experience as part of an enterprise application modernization effort.',
+        ['Flutter', 'Charts', 'API integration']
+      ),
+      (
+        '04',
+        'SQLens',
+        'Enterprise data and analytics application work. Add verified feature details and approved screenshots before publishing.',
+        ['Flutter', 'Dart', 'Integration']
+      ),
+    ];
 
-  Widget _contact() => Container(key: _keys['contact'], padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 80), child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 850), child: Column(children: [
-    _eyebrow('LET’S CONNECT'), const SizedBox(height: 14), const Text('Have a Flutter role in mind?', textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)), const SizedBox(height: 16), const Text('I’m interested in opportunities where I can build reliable products and contribute to strong engineering teams.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white60, height: 1.7)), const SizedBox(height: 28),
-    Wrap(alignment: WrapAlignment.center, spacing: 12, runSpacing: 12, children: [
-      OutlinedButton.icon(onPressed: () => _open('https://www.linkedin.com/in/manishkumar-sahu-400751151/'), icon: const Icon(Icons.work_outline), label: const Text('LinkedIn')),
-      OutlinedButton.icon(onPressed: () => _open('https://github.com/REPLACE_WITH_USERNAME'), icon: const Icon(Icons.code), label: const Text('GitHub — update link')),
-      OutlinedButton.icon(onPressed: () => _open('mailto:YOUR_EMAIL@example.com'), icon: const Icon(Icons.email_outlined), label: const Text('Email — update address')),
-    ]), const SizedBox(height: 20), const Text('Add your email, GitHub profile and resume PDF before publishing.', style: TextStyle(color: Colors.white30, fontSize: 11)),
-  ]))));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _eyebrow('SELECTED WORK'),
+        const SizedBox(height: 16),
+        const Text(
+          'Projects & product work',
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'A selection of enterprise projects and areas of contribution.',
+          style: TextStyle(color: muted),
+        ),
+        const SizedBox(height: 28),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: data.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: wide ? 2 : 1,
+            crossAxisSpacing: 18,
+            mainAxisSpacing: 18,
+            mainAxisExtent: 255,
+          ),
+          itemBuilder: (_, index) {
+            return _ProjectCard(data: data[index]);
+          },
+        ),
+        const SizedBox(height: 14),
+        const Text(
+          'Publish only project details and screenshots you are authorized to share.',
+          style: TextStyle(
+            color: Color(0xFF666666),
+            fontSize: 11,
+          ),
+        ),
+      ],
+    );
+  }
 
-  Widget _eyebrow(String text) => Text(text, style: const TextStyle(color: cyan, letterSpacing: 2, fontSize: 11, fontWeight: FontWeight.bold));
-  Widget _infoCard(String role, String company, String subtitle, String detail) => Container(width: double.infinity, padding: const EdgeInsets.all(22), decoration: BoxDecoration(color: panel, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(company.toUpperCase(), style: const TextStyle(color: cyan, letterSpacing: 1.4, fontSize: 11, fontWeight: FontWeight.bold)), const SizedBox(height: 8), Text(role, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(subtitle, style: const TextStyle(color: Colors.white54)), const SizedBox(height: 12), Text(detail, style: const TextStyle(color: Colors.white70, height: 1.6))]));
-  Widget _project(String number, String name, String description, List<String> tags) => Container(padding: const EdgeInsets.all(22), decoration: BoxDecoration(color: panel, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white10)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(number, style: const TextStyle(color: accent, fontWeight: FontWeight.w900, fontSize: 13)), const SizedBox(height: 10), Text(name, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)), const SizedBox(height: 10), Expanded(child: Text(description, style: const TextStyle(color: Colors.white60, height: 1.55, fontSize: 13))), Wrap(spacing: 7, runSpacing: 7, children: tags.map((t) => Chip(label: Text(t, style: const TextStyle(fontSize: 10)), visualDensity: VisualDensity.compact, backgroundColor: const Color(0xFF20243A), side: BorderSide.none)).toList())]));
+  Widget _contact() {
+    return Column(
+      children: [
+        _eyebrow('LET’S CONNECT'),
+        const SizedBox(height: 16),
+        const Text(
+          'Have a Flutter role in mind?',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 650),
+          child: Text(
+            'I’m interested in opportunities where I can build reliable products and contribute to strong engineering teams.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: muted,
+              height: 1.8,
+            ),
+          ),
+        ),
+        const SizedBox(height: 26),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            _contactButton(
+              'LinkedIn',
+              Icons.work_outline,
+              () => open(
+                'https://www.linkedin.com/in/manishkumar-sahu-400751151/',
+              ),
+            ),
+            _contactButton(
+              'GitHub',
+              Icons.code,
+              () => open('https://github.com/manishsahu234'),
+            ),
+            _contactButton(
+              'Email me',
+              Icons.email_outlined,
+              () => open('mailto:manishsahu363@gmail.com'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+        const ContactSection(),
+      ],
+    );
+  }
 
-  static void _scroll(String id) { final context = _keys[id]?.currentContext; if (context != null) Scrollable.ensureVisible(context, duration: const Duration(milliseconds: 500)); }
-  static Future<void> _open(String url) async {
-    final uri = Uri.parse(url);
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  Widget _contactButton(
+    String label,
+    IconData icon,
+    VoidCallback action,
+  ) {
+    return OutlinedButton.icon(
+      onPressed: action,
+      icon: Icon(icon, size: 17),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: white,
+        side: const BorderSide(color: border),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 17,
+        ),
+      ),
+    );
+  }
+
+  Widget _eyebrow(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: accent,
+        letterSpacing: 2.4,
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+      ),
+    );
+  }
+}
+
+class _ProjectCard extends StatefulWidget {
+  const _ProjectCard({required this.data});
+
+  final (String, String, String, List<String>) data;
+
+  @override
+  State<_ProjectCard> createState() => _ProjectCardState();
+}
+
+class _ProjectCardState extends State<_ProjectCard> {
+  bool hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = widget.data;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => hover = true),
+      onExit: (_) => setState(() => hover = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(
+          0,
+          hover ? -6 : 0,
+          0,
+        ),
+        padding: const EdgeInsets.all(23),
+        decoration: BoxDecoration(
+          color: hover ? const Color(0xFF191713) : panel,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: hover ? accent : border,
+          ),
+          boxShadow: hover
+              ? [
+                  BoxShadow(
+                    color: accent.withValues(alpha: 0.08),
+                    blurRadius: 24,
+                  ),
+                ]
+              : const [],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  d.$1,
+                  style: const TextStyle(
+                    color: accent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.north_east,
+                  color: hover ? accent : muted,
+                  size: 18,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              d.$2,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Text(
+                d.$3,
+                style: const TextStyle(
+                  color: muted,
+                  fontSize: 13,
+                  height: 1.7,
+                ),
+              ),
+            ),
+            Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: d.$4.map((tag) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF211D16),
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Text(
+                    tag,
+                    style: const TextStyle(
+                      color: accent,
+                      fontSize: 10,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class _Metric extends StatelessWidget {
-  const _Metric({required this.value, required this.label});
-  final String value, label;
+  const _Metric(this.value, this.label);
+
+  final String value;
+  final String label;
+
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Colors.white)), const SizedBox(height: 4), Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12))]);
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            color: white,
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            color: muted,
+            fontSize: 10,
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
 }
