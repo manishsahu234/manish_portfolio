@@ -1,46 +1,202 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+  <base href="/manish_flutter_portfolio/">
 
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050505">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="manish_flutter_portfolio">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="description"
+    content="Manish Sahu - Flutter Developer Portfolio">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <title>Manish Sahu | Flutter Developer</title>
 
-  <title>Manish Sahu | Portfolio</title>
   <link rel="manifest" href="manifest.json">
-</head>
-<body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #050505;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    #app-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #050505;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 450ms ease, visibility 450ms ease;
+    }
+
+    #app-loader.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .loader-logo {
+      width: 90px;
+      height: 90px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #C6A96B;
+      border-radius: 22px;
+      color: #C6A96B;
+      font-family: Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    #lottie-loader {
+      display: none;
+      width: 150px;
+      height: 150px;
+    }
+
+    .loader-name {
+      color: #F5F5F5;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    .loader-line {
+      width: 120px;
+      height: 2px;
+      overflow: hidden;
+      background: #262626;
+    }
+
+    .loader-line::after {
+      content: "";
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: #C6A96B;
+      animation: loading 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(350%);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Portfolio loading screen -->
+  <div id="app-loader">
+    <div class="loader-content">
+
+      <div id="fallback-logo" class="loader-logo">
+        MS
+      </div>
+
+      <div id="lottie-loader"></div>
+
+      <div class="loader-name">
+        MANISH SAHU
+      </div>
+
+      <div class="loader-line"></div>
+
+    </div>
+  </div>
+
+  <!-- Lottie animation library -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"
+    onload="startLottieLoader()">
+  </script>
+
+  <script>
+    function startLottieLoader() {
+      const container = document.getElementById('lottie-loader');
+      const fallback = document.getElementById('fallback-logo');
+
+      if (!window.lottie || !container) return;
+
+      const animation = window.lottie.loadAnimation({
+        container: container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'loader.json'
+      });
+
+      animation.addEventListener('DOMLoaded', function () {
+        container.style.display = 'block';
+        fallback.style.display = 'none';
+      });
+
+      animation.addEventListener('data_failed', function () {
+        container.style.display = 'none';
+        fallback.style.display = 'flex';
+      });
+    }
+
+    // Remove the loader after Flutter renders its first frame.
+    window.addEventListener('flutter-first-frame', function () {
+      const loader = document.getElementById('app-loader');
+
+      if (!loader) return;
+
+      loader.classList.add('hide');
+
+      setTimeout(function () {
+        loader.remove();
+        document.body.style.overflow = 'auto';
+      }, 500);
+    });
+  </script>
+
+  <!-- Start Flutter -->
   <script src="flutter_bootstrap.js" async></script>
+
 </body>
 </html>
