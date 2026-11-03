@@ -81,14 +81,123 @@ class _PortfolioHomeState extends State<PortfolioHome> {
     'BLoC',
     'Provider',
     'Firebase',
-    'REST APIs',
+    'REST API Integration',
     'Google Maps',
-    'Offline-first apps',
-    'Git',
-    'CI/CD',
+    'Offline-first Architecture',
+    'JSON Parsing',
+    'SQLite / Local Database',
     'Responsive UI',
-    'JSON',
+    'Git',
+    'GitHub',
+    'CI/CD',
+    'Push Notifications',
+    'Hardware Integration',
+    'PDF Generation',
+    'Excel Import / Export',
+    'Syncfusion Charts',
   ];
+
+  Widget _profilePhoto() {
+    return GestureDetector(
+      onTap: () {
+        showDialog<void>(
+          context: context,
+          barrierColor: Colors.black.withValues(alpha: 0.85),
+          builder: (dialogContext) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.all(24),
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(
+                      maxWidth: 420,
+                      maxHeight: 550,
+                    ),
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: panel,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: accent,
+                        width: 1.2,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(17),
+                      child: InteractiveViewer(
+                        child: Image.asset(
+                          'assets/images/profile.jpg',
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) {
+                            return const SizedBox(
+                              height: 300,
+                              child: Center(
+                                child: Text(
+                                  'Profile image unavailable',
+                                  style: TextStyle(color: white),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    icon: const Icon(
+                      Icons.close,
+                      color: white,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: panel,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          width: 120,
+          height: 120,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: accent, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.18),
+                blurRadius: 25,
+              ),
+            ],
+          ),
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/profile.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) {
+                return Container(
+                  color: panel,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.person,
+                    color: accent,
+                    size: 55,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   void go(String name) {
     final context = keys[name]?.currentContext;
@@ -129,9 +238,9 @@ class _PortfolioHomeState extends State<PortfolioHome> {
                 'About',
                 ScrollReveal(
                   child: _section(
-                    'ABOUT ME',
-                    'Building useful products with thoughtful engineering.',
-                    'I am a Flutter-focused software developer experienced in building cross-platform applications. I enjoy turning complex business workflows into reliable, responsive and user-friendly experiences. My work includes state management, API integrations, offline capabilities, reporting and hardware-connected workflows.',
+                    'PROFESSIONAL SUMMARY',
+                    'Building scalable applications with Flutter and Dart.',
+                    'Software developer specializing in Flutter application development, with experience building cross-platform mobile applications and enterprise solutions. Skilled in developing responsive user interfaces, integrating REST APIs, implementing state management, Firebase services, offline-first functionality and real-time data synchronization. Focused on writing maintainable code and delivering reliable, user-friendly applications.',
                   ),
                 ),
               ),
@@ -235,6 +344,8 @@ class _PortfolioHomeState extends State<PortfolioHome> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _profilePhoto(),
+              const SizedBox(height: 28),
               const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -316,23 +427,15 @@ class _PortfolioHomeState extends State<PortfolioHome> {
                   ),
                 ],
               ),
-              const SizedBox(height: 64),
+              const SizedBox(height: 45),
               const Wrap(
-                spacing: 48,
-                runSpacing: 22,
+                spacing: 40,
+                runSpacing: 20,
                 children: [
-                  _Metric('3.5+', 'YEARS FLUTTER*'),
-                  _Metric('1.3+', 'YEARS MENDIX*'),
-                  _Metric('04', 'FEATURED PROJECTS'),
+                  _Metric('Flutter', 'APP DEVELOPMENT'),
+                  _Metric('BLoC', 'STATE MANAGEMENT'),
+                  _Metric('Cross-platform', 'MOBILE APPLICATIONS'),
                 ],
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                '*Experience figures supplied for this portfolio draft; verify before publishing.',
-                style: TextStyle(
-                  color: Color(0xFF666666),
-                  fontSize: 10,
-                ),
               ),
             ],
           ),
@@ -444,10 +547,10 @@ class _PortfolioHomeState extends State<PortfolioHome> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _eyebrow('CAREER'),
+        _eyebrow('PROFESSIONAL EXPERIENCE'),
         const SizedBox(height: 16),
         const Text(
-          'Experience',
+          'Work Experience',
           style: TextStyle(
             fontSize: 34,
             fontWeight: FontWeight.w700,
@@ -457,15 +560,8 @@ class _PortfolioHomeState extends State<PortfolioHome> {
         _infoCard(
           'Senior Consultant',
           'Emergys',
-          'Client: SmartQ · Project: Pulse',
-          'Enterprise application development for cafeteria and food-service operations, including Flutter UI, application workflows, integrations, offline support and operational reporting.',
-        ),
-        const SizedBox(height: 16),
-        _infoCard(
-          'Application Developer',
-          'Mendix',
-          'Low-code application development',
-          'Contributed to business application development and enterprise workflows before focusing on Flutter. Update this entry with your exact company, dates and responsibilities.',
+          'Client: SmartQ | Enterprise Application Development',
+          'Developing and maintaining cross-platform enterprise applications using Flutter and Dart. Contributing to application architecture, responsive UI development, state management using BLoC, REST API integration, Firebase services and offline-first capabilities. Working on operational workflows, reporting, hardware integrations and application performance improvements.',
         ),
       ],
     );
@@ -528,26 +624,26 @@ class _PortfolioHomeState extends State<PortfolioHome> {
       (
         '01',
         'Pulse · SmartQ',
-        'Enterprise cafeteria operations platform covering audits, compliance, vendor workflows, reporting, P&L insights and feedback.',
-        ['Flutter', 'Dart', 'BLoC', 'Firebase']
+        'Enterprise cafeteria operations platform featuring audits, compliance tracking, vendor management, P&L analysis, MIS reporting and AI-powered feedback. Developed application features using Flutter, Dart, BLoC and Firebase.',
+        ['Flutter', 'Dart', 'BLoC', 'Firebase', 'REST APIs']
       ),
       (
         '02',
         'Lens',
-        'Enterprise application migration from Mendix to Flutter, focused on modern mobile experiences.',
-        ['Flutter', 'REST APIs', 'BLoC']
+        'Enterprise application modernization project focused on delivering responsive mobile experiences, business workflows and API integrations.',
+        ['Flutter', 'Dart', 'BLoC', 'REST APIs']
       ),
       (
         '03',
         'Insights',
-        'Business insights and operational reporting experience as part of an enterprise application modernization effort.',
-        ['Flutter', 'Charts', 'API integration']
+        'Business intelligence and operational reporting application featuring data visualization, reporting workflows and enterprise insights.',
+        ['Flutter', 'Dart', 'Syncfusion Charts', 'APIs']
       ),
       (
         '04',
         'SQLens',
-        'Enterprise data and analytics application work. Add verified feature details and approved screenshots before publishing.',
-        ['Flutter', 'Dart', 'Integration']
+        'Enterprise application focused on data management, business workflows and reporting capabilities.',
+        ['Flutter', 'Dart', 'REST APIs', 'Integration']
       ),
     ];
 
