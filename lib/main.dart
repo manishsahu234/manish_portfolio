@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'widgets/contact_section.dart';
-import 'widgets/portfolio_entry.dart';
 import 'widgets/portfolio_logo.dart';
 import 'widgets/scroll_reveal.dart';
 
@@ -22,8 +20,6 @@ class PortfolioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = ThemeData.dark();
-
     return MaterialApp(
       title: 'Manish Sahu | Flutter Developer',
       debugShowCheckedModeBanner: false,
@@ -55,9 +51,7 @@ class PortfolioApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const PortfolioEntry(
-        child: PortfolioHome(),
-      ),
+      home: const PortfolioHome(),
     );
   }
 }

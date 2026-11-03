@@ -7,9 +7,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050505">
-
-  <meta name="description"
-    content="Manish Sahu - Flutter Developer Portfolio">
+  <meta name="description" content="Manish Sahu - Flutter Developer Portfolio">
 
   <title>Manish Sahu | Flutter Developer</title>
 
@@ -22,8 +20,6 @@
 
     html, body {
       margin: 0;
-      padding: 0;
-      width: 100%;
       min-height: 100%;
       background: #050505;
     }
@@ -37,8 +33,8 @@
       inset: 0;
       z-index: 999999;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       background: #050505;
       opacity: 1;
       visibility: visible;
@@ -58,36 +54,74 @@
       gap: 22px;
     }
 
-    .loader-logo {
-      width: 90px;
-      height: 90px;
+    .animation-stage {
+      position: relative;
+      width: 190px;
+      height: 190px;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+    }
+
+    .orbit {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border: 1px solid rgba(198, 169, 107, 0.25);
+      border-radius: 50%;
+      animation: rotate 5s linear infinite;
+    }
+
+    .orbit::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #C6A96B;
+      box-shadow: 0 0 15px #C6A96B;
+    }
+
+    .orbit-inner {
+      position: absolute;
+      width: 145px;
+      height: 145px;
+      border: 1px dashed rgba(198, 169, 107, 0.35);
+      border-radius: 50%;
+      animation: rotate 9s linear infinite reverse;
+    }
+
+    @keyframes rotate {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loader-logo {
+      position: relative;
+      z-index: 2;
+      width: 68px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border: 1px solid #C6A96B;
-      border-radius: 22px;
+      border-radius: 19px;
+      background: #090909;
       color: #C6A96B;
       font-family: Arial, sans-serif;
-      font-size: 28px;
+      font-size: 25px;
       font-weight: 800;
-      letter-spacing: -2px;
       animation: pulse 1.5s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-
       50% {
-        transform: scale(1.06);
+        transform: scale(1.08);
+        box-shadow: 0 0 35px rgba(198, 169, 107, 0.25);
       }
-    }
-
-    #lottie-loader {
-      display: none;
-      width: 150px;
-      height: 150px;
     }
 
     .loader-name {
@@ -95,107 +129,80 @@
       font-family: Arial, sans-serif;
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: 5px;
+      letter-spacing: 6px;
+    }
+
+    .loader-caption {
+      color: #929292;
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 3px;
       text-transform: uppercase;
     }
 
-    .loader-line {
-      width: 120px;
+    .loader-progress {
+      width: 145px;
       height: 2px;
       overflow: hidden;
       background: #262626;
     }
 
-    .loader-line::after {
-      content: "";
+    .loader-progress span {
       display: block;
-      width: 40%;
+      width: 35%;
       height: 100%;
       background: #C6A96B;
-      animation: loading 1.2s ease-in-out infinite;
+      animation: progress 1.1s ease-in-out infinite;
     }
 
-    @keyframes loading {
-      from {
-        transform: translateX(-100%);
-      }
-
-      to {
-        transform: translateX(350%);
-      }
+    @keyframes progress {
+      from { transform: translateX(-110%); }
+      to { transform: translateX(420%); }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Portfolio loading screen -->
   <div id="app-loader">
     <div class="loader-content">
 
-      <div id="fallback-logo" class="loader-logo">
-        MS
+      <div class="animation-stage">
+        <div class="orbit"></div>
+        <div class="orbit-inner"></div>
+        <div class="loader-logo">MS</div>
       </div>
 
-      <div id="lottie-loader"></div>
+      <div class="loader-name">MANISH SAHU</div>
+      <div class="loader-caption">Flutter Developer</div>
 
-      <div class="loader-name">
-        MANISH SAHU
+      <div class="loader-progress">
+        <span></span>
       </div>
-
-      <div class="loader-line"></div>
 
     </div>
   </div>
 
-  <!-- Lottie animation library -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"
-    onload="startLottieLoader()">
-  </script>
-
   <script>
-    function startLottieLoader() {
-      const container = document.getElementById('lottie-loader');
-      const fallback = document.getElementById('fallback-logo');
+    // Hide only after Flutter actually renders.
+let flutterRendered = false;
 
-      if (!window.lottie || !container) return;
+window.addEventListener('flutter-first-frame', function () {
+  flutterRendered = true;
 
-      const animation = window.lottie.loadAnimation({
-        container: container,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: 'loader.json'
-      });
+  const loader = document.getElementById('app-loader');
 
-      animation.addEventListener('DOMLoaded', function () {
-        container.style.display = 'block';
-        fallback.style.display = 'none';
-      });
+  if (!loader) return;
 
-      animation.addEventListener('data_failed', function () {
-        container.style.display = 'none';
-        fallback.style.display = 'flex';
-      });
-    }
+  loader.classList.add('hide');
 
-    // Remove the loader after Flutter renders its first frame.
-    window.addEventListener('flutter-first-frame', function () {
-      const loader = document.getElementById('app-loader');
-
-      if (!loader) return;
-
-      loader.classList.add('hide');
-
-      setTimeout(function () {
-        loader.remove();
-        document.body.style.overflow = 'auto';
-      }, 500);
-    });
+  setTimeout(function () {
+    loader.remove();
+    document.body.style.overflow = 'auto';
+  }, 450);
+});
   </script>
 
-  <!-- Start Flutter -->
   <script src="flutter_bootstrap.js" async></script>
 
 </body>
